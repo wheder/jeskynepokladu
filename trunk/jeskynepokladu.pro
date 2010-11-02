@@ -1,16 +1,10 @@
-#-------------------------------------------------
-#
+# -------------------------------------------------
 # Project created by QtCreator 2010-10-06T15:58:18
-#
-#-------------------------------------------------
-
-QT       -= gui
-
+# -------------------------------------------------
+QT -= gui
 TARGET = jeskynepokladu
-CONFIG   += console
-CONFIG   -= app_bundle
-
+CONFIG += console
+CONFIG -= app_bundle
 TEMPLATE = app
-
-
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    main_par.cpp
