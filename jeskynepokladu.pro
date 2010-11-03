@@ -7,4 +7,5 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += main.cpp \
-    main_par.cpp
+    main_par.cpp \
+    testy.cpp

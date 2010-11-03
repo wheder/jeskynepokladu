@@ -160,7 +160,7 @@ void posli_procesu_ukol(int proces_nr, int * arr, int cnt_given) {
     posilam = cnt_given;
     MPI_Send(&posilam, 1, MPI_INT, proces_nr, CO_DELAT, MPI_COMM_WORLD);
     bool * pole = send_array(arr, cnt_given);
-    MPI_Send(&pole, pocet, MPI_BOOL, proces_nr, CO_DELAT, MPI_COMM_WORLD);
+    MPI_Send(&pole, pocet, MPI_CHAR, proces_nr, CO_DELAT, MPI_COMM_WORLD);
     //verme ze to vsechno proslo ;-)
     delete [] pole; // snad je uklid korektni
 }
@@ -319,9 +319,9 @@ int main(int argc, char *argv[])
                     if (zprava == JOB_RUNNING_AND_GIVE) {//tahle mrska nam muze dat kus vlastni prace, tak si o ni rekneme. taky by mohla dat rovnou, ale prdime na to ;-)
                         int nic = DEJ_PULKU;
                         MPI_Send(&nic, 1, MPI_INT, i, CO_DELAT, MPI_COMM_WORLD);
-                        MPI_Recv(zprava_potomka, pocet, MPI_BOOL, i, CO_DELAT, MPI_COMM_WORLD);
+                        MPI_Recv(zprava_potomka, pocet, MPI_CHAR, i, CO_DELAT, MPI_COMM_WORLD, &status);
                         //tady vlastne obdrzime jen jednu vetev, ne nejaky interval. co s tim? vratit start a end?
-                        MPI_Send(zprava_potomka, pocet, MPI_BOOL, process_nr, CO_DELAT, MPI_COMM_WORLD);
+                        MPI_Send(zprava_potomka, pocet, MPI_CHAR, process_nr, CO_DELAT, MPI_COMM_WORLD);
 
 
 
@@ -390,9 +390,12 @@ int main(int argc, char *argv[])
         //prej uz se teda vsichni flakaji -> rekneme si o nejlepsi reseni ;-)
         for (int i = 1; i<mpi_count; i++) {
             int nic = VRAT_NEJLEPSI;
+            MPI_Status status;
             MPI_Send(&nic, 1, MPI_INT, i, CO_DELAT, MPI_COMM_WORLD);
             void * vysledek = malloc(sizeof(bool)*pocet);
-            MPI_Recv(vysledek, pocet, MPI_BOOL, i, CO_DELAT, MPI_COMM_WORLD);
+            MPI_Recv(vysledek, pocet, MPI_CHAR, i, CO_DELAT, MPI_COMM_WORLD, &status);
+
+
             bool * vysled =  ((bool *)vysledek);
             porovnej_nejlepsi(vysled);
 
@@ -419,15 +422,33 @@ int main(int argc, char *argv[])
     else { /// podrizene procesy
         /// @TODO
 
+        //zacneme poslouchat, az nam sef neco zada
+        void * vysledek = malloc(sizeof(int));
+        MPI_Status status;
+        MPI_Recv(vysledek, 1, MPI_INT, i, CO_DELAT, MPI_COMM_WORLD, &status);
+        int message = (*(int*) vysledek);
+        if (message != POSILAM_UKOL) {
+            printf("%d, neco se pokazilo - %d\n",mpi_nr, message);
+            fflush(stdout);
+            return 9;
+        }
 
+        //tady nacteme pocet cisel, ktera budeme pocitat.
+        MPI_Recv(vysledek, 1, MPI_INT, i, CO_DELAT, MPI_COMM_WORLD, &status);
+        int message = (*(int*) vysledek);
+        if (message != POSILAM_UKOL) {
+            printf("%d, neco se pokazilo - %d\n",mpi_nr, message);
+            fflush(stdout);
+            return 9;
+        }
 
-
+        /*
         for (int  nic = 0; (nic) < 20; (nic)++) {
             //MPI_Send(&nic, 1, MPI_INT, 0, tag, MPI_COMM_WORLD);
             //MPI_Send (param, 2, MPI_INT, source, tag1, MPI_COMM_WORLD);
 
             //usleep(1);
-        }
+        }*/
 
     }
 
@@ -446,4 +467,8 @@ int main(int argc, char *argv[])
 
     MPI_Finalize();
 
+    printf("%d koncim!\n", mpi_nr);
+    fflush(stdout);
+
+    return 0;
 }
