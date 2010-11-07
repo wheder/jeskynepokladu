@@ -11,10 +11,11 @@
 
 #include <stdlib.h>
 
-#define __TEST 1
+//#define __TEST 1
+//#define __TISKNI_FINALNI_MATICE 1
 
 #define LOOP_SIZE 1000
-#define PRECISION 10
+#define PRECISION 10000
 
 using namespace std;
 
@@ -77,78 +78,49 @@ int main(int argc, char *argv[])
 
     //max_arr = new int[pocet];
 
-    if (0) {
-        int ** sol_matr = new int*[pocet+1];
-        for (int i=0;i<pocet+1;i++) sol_matr[i]= new int[total_objem+1];
-        for (int i=0;i< pocet+1; i++) for (int j =0;j<total_objem+1;j++) sol_matr[i][j]=i*j;
-
-        printf("     ");
-        for (int i=0;i<total_objem+1;i++) printf("| %03d ", i);
-        printf("\n");
-        for (int i=0;i< pocet+1; i++) {
-            printf("  %02d ", i);
-            for (int j =0;j<total_objem+1;j++) printf("| %03d ", sol_matr[i][j]);
-            printf("\n");
-        }
-
-        return 0;
-    }
-
     //nadeklarujeme uvodni matice
-    solution_matrix = new int * [(pocet+1)*(total_objem+1)];
-    keeeeeep_matrix = new int * [(pocet+1)*(total_objem+1)];
-
+    //snad nam nedojde pamet
+    solution_matrix = new int * [pocet+1];
+    keeeeeep_matrix = new int * [pocet+1];
+    for (int i =0; i< pocet+1; ++i) {
+        solution_matrix[i] = new int [total_objem+1];
+        keeeeeep_matrix[i] = new int [total_objem+1];
+    }
+    
     #ifdef __TEST
-    printf("pocet %d, total_objem %d,  %d\n\n",pocet, total_objem, (pocet+1)*(total_objem+1));
         //na vypis minusujeme zbytek
-        for (int i=0;i<((pocet+1)*(total_objem+1));i++) {
-            solution_matrix[i] = -1;
-            keeeeeep_matrix[i] = -1;
+        for (int radka = 1;radka<pocet+1; ++radka) {//do nuly tam vyplnime dycky rovnou
+            for(int bunka = 0; bunka <total_objem+1;++bunka) {
+                solution_matrix[radka][bunka] = -1;
+                keeeeeep_matrix[radka][bunka] = -1;
+            }
         }
     #endif /* __TEST */
 
-    for (int i=0;i<=(total_objem);i++) {
-        solution_matrix[i] = 0;
-        keeeeeep_matrix[i] = 0;
+    for (int i=0;i<total_objem+1;++i) {
+        solution_matrix[0][i] = 0;
+        keeeeeep_matrix[0][i] = 0;
     }
 
 
-    #ifdef __TEST2
-        for (int i=0;i<(pocet+1)*(total_objem+1);i++) printf("%02d |", solution_matrix[i]);
-        printf("\n");
-        printf("INITIAL SOLUTION_MATRIX\n");
-        for (int j =0; j<pocet+1; j++) {
-            if (j == 0 ) printf("%03d | %03d |||", 0,0);
-            else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
-
-            for (int q = 0; q<total_objem+1; q++) {
-                printf("%02d |", solution_matrix[(j*total_objem)+q]);
-
-
-            }
-            printf("\n");
-        }
-        printf("\n");
-    #endif /* __TEST2 */
-
 
     //ted ten iteracni algoritmus
-    for (int radka = 1;radka<=pocet; ++radka) {//nuly uz jsme vyplnili vsude, tak zacneme od 1
-        for(int bunka = 0; bunka <(total_objem+1);++bunka) {
-            if (objem[(radka-1)] < bunka) {//prvek by se mohl vejit
-                int suma_kdyz_vezmu = cena[radka-1] + solution_matrix[((radka-1)*(total_objem+1))+bunka];
-                if (solution_matrix[((radka-1)*(total_objem+1))+bunka] < suma_kdyz_vezmu   ) {//je vetsi, napereme to tam
-                    keeeeeep_matrix[((radka)*(total_objem+1))+bunka] = 1;
-                    solution_matrix[((radka)*(total_objem+1))+bunka] = suma_kdyz_vezmu;
+    for (int radka = 1;radka<pocet+1; ++radka) {//nuly uz jsme vyplnili vsude, tak zacneme od 1
+        for(int bunka = 0; bunka <total_objem+1;++bunka) {
+            if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
+                int suma_kdyz_vezmu = cena[radka-1] + solution_matrix[radka-1][bunka-objem[radka-1]];
+                if (solution_matrix[radka-1][bunka] < suma_kdyz_vezmu   ) {//je vetsi, napereme to tam
+                    keeeeeep_matrix[radka][bunka] = 1;
+                    solution_matrix[radka][bunka] = suma_kdyz_vezmu;
                 }
                 else {//je nevyhodne to vzit
-                    solution_matrix[((radka)*(total_objem+1))+bunka] = solution_matrix[((radka-1)*(total_objem+1))+bunka];
-                    keeeeeep_matrix[((radka)*(total_objem+1))+bunka] = 0;
+                    solution_matrix[radka][bunka] = solution_matrix[radka-1][bunka];
+                    keeeeeep_matrix[radka][bunka] = 0;
                 }
             }
             else {//nevejde se, tak opiseme to co je nad tim
-                solution_matrix[((radka)*(total_objem+1))+bunka] = solution_matrix[((radka-1)*(total_objem+1))+bunka];
-                keeeeeep_matrix[((radka)*(total_objem+1))+bunka] = 0;
+                solution_matrix[radka][bunka] = solution_matrix[radka-1][bunka];
+                keeeeeep_matrix[radka][bunka] = 0;
             }
             #ifdef __TEST
                 printf("SOLUTION_MATRIX\n");
@@ -157,7 +129,22 @@ int main(int argc, char *argv[])
                     else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
 
                     for (int q = 0; q<total_objem+1; q++) {
-                        printf("%02d |", solution_matrix[(j*total_objem)+q]);
+                        printf("% 2d |", keeeeeep_matrix[j][q]);
+
+
+                    }
+                    printf("\n");
+                }
+                printf("\n");
+            #endif /* __TEST */
+            #ifdef __TEST
+                printf("KEEEEEEP_MATRIX\n");
+                for (int j =0; j<pocet+1; j++) {
+                    if (j == 0 ) printf("%03d | %03d |||", 0,0);
+                    else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
+
+                    for (int q = 0; q<total_objem+1; q++) {
+                        printf("% 2d |", keeeeeep_matrix[j][q]);
 
 
                     }
@@ -172,11 +159,43 @@ int main(int argc, char *argv[])
 
     //tady bychom uz mohli znicit tu solution matrix
 
+#ifdef __TISKNI_FINALNI_MATICE
+    printf("SOLUTION_MATRIX\n");
+    for (int j =0; j<pocet+1; j++) {
+        if (j == 0 ) printf("%03d | %03d |||", 0,0);
+        else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
+
+        for (int q = 0; q<total_objem+1; q++) {
+            printf("%02d |", solution_matrix[j][q]);
+
+
+        }
+        printf("\n");
+    }
+    printf("\n");
+    printf("KEEEEEEP_MATRIX\n");
+    for (int j =0; j<pocet+1; j++) {
+        if (j == 0 ) printf("%03d | %03d |||", 0,0);
+        else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
+
+        for (int q = 0; q<total_objem+1; q++) {
+            printf("%02d |", keeeeeep_matrix[j][q]);
+
+
+        }
+        printf("\n");
+    }
+    printf("\n");
+#endif /* __TISKNI_FINALNI_MATICE */
+
+
+
     int part_objem = total_objem;
     int dosazena_cena = 0;
     for (int index_prvku = pocet; index_prvku > 0; --index_prvku) {
-        if (keeeeeep_matrix[(index_prvku*(total_objem+1))+part_objem] == 1 ) {
-            printf("%.12f | %.12f \n",((float)(cena[index_prvku-1])/PRECISION),((float)(objem[index_prvku-1])/PRECISION));
+        if (keeeeeep_matrix[index_prvku][part_objem] == 1 ) {
+            printf("%d | %.12f | %.12f \n",index_prvku, ((float)(cena[index_prvku-1])/PRECISION),((float)(objem[index_prvku-1])/PRECISION)); // floaty
+            //printf("idx %d |  cena %d | objem %d \n",index_prvku, cena[index_prvku-1],objem[index_prvku-1]); //INTY
             part_objem -= objem[index_prvku-1];
             dosazena_cena += cena[index_prvku-1];
         }
@@ -185,6 +204,8 @@ int main(int argc, char *argv[])
 
     }
 
+    printf("cena: %.12f",((float)dosazena_cena/PRECISION));
+    cout  << endl;
 
 return 0;
 
