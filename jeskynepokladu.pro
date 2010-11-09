@@ -9,4 +9,5 @@ TEMPLATE = app
 SOURCES += main.cpp \
     main_par.cpp \
     testy.cpp \
-    seq_nerek.cpp
+    seq_nerek.cpp \
+    nerek_mpi.cpp
