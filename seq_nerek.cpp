@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
 
     printf("cena: %.12f",((float)dosazena_cena/PRECISION));
     cout  << endl;
-
+system("read -p a");
 return 0;
 
 
