@@ -135,7 +135,16 @@ void posli_procesu_radku_binarni(int cislo_procesu, unsigned int radka) {
     }
 }
 
-/* nulovat radku binarni matice neni potreba, tu totiz chceme celou, a posilame ji jen jedenkrat */
+
+void vynuluj_radku_binarni(unsigned int radka) {
+    kep_node * soucasny = binarni_matice[radka];
+    while(soucasny->nxt != NULL) {
+        sol_node * minuly = soucasny;
+        soucasny = soucasny->nxt;
+        delete minuly;
+    }
+    delete soucasny;
+}
 
 void vynuluj_radku_reseni(unsigned int radka) {
     sol_node * soucasny = resseni_matice[radka];
@@ -176,11 +185,7 @@ void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
 }
 
 void prijmi_radku_binarni(int cislo_odesilatele, unsigned int radka) {
-
-    //zbavime se toho jedineho pohrobka
-    kep_node * old = binarni_matice[radka];
-    delete old;
-    //nebo ho taky nemusime na zacatku vubec setovat
+    vynuluj_radku_binarni(radka);
 
     kep_node * prvni = NULL;
     kep_node * minula = NULL;
