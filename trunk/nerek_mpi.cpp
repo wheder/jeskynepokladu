@@ -316,7 +316,8 @@ int main(int argc, char *argv[])
                 //    - mam, koncim, dam ti mezivysledek, binarni matici, a pak mi posli neco noveho
                 //           * vezmeme mezivysledek; vezmeme binarni radku, zkusime jestli je co poslat, kdyztak rekneme cekej
 
-
+				cout <<"master" << endl;
+				posli_procesu_radku_reseni(proces, 0);
 
 
             }
@@ -341,15 +342,18 @@ int main(int argc, char *argv[])
         //nasledne prijme opet cely predchzi radek, a zacne pokracovat dalsim chunkem ve svem radku.
 
         //jakmile skonci, odesle posledni chunk, a potom celou radku z binarni matice. pote vymeze obe svoje pocitaci radky pak si rekne o dalsi radku (pokud dostane 0 tak konci)
-
-
+		cout <<"worker" << endl;
+		prijmi_radku_reseni(0, 0);
+		
+		cout << binarni_matice[0].start << endl;
+		cout << binarni_matice[0].sum << endl;
 
     }
 
 
 //    MPI_Finalize();
 
-
+/*
 
 
     //ted ten iteracni algoritmus http://www.youtube.com/watch?v=hugQNiYoqUA
@@ -419,6 +423,8 @@ int main(int argc, char *argv[])
                 }
                 printf("\n");
             #endif /* __TEST */
+			
+/*			
         }
     }
     //vyplnene matice
@@ -443,7 +449,7 @@ int main(int argc, char *argv[])
     cout  << endl;
 
 //system("read -p a");
-
+*/
     //delete [] solution_matrix;
     //delete [] bitset_matrix;
     return 0;
