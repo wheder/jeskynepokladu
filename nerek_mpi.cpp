@@ -17,11 +17,16 @@
 //#define __TISKNI_FINALNI_MATICE 1
 
 #define LOOP_SIZE 100
-#define PRECISION 1000
+#define PRECISION 10
 #define MPI_BUFFER_LENGTH 100
 #define MPI_TAG_SOL_NODE 1
 #define MPI_TAG_KEP_NODE 2
+#define MPI_TAG_STATUS_KOD 3
+#define MPI_TAG_CISLO_RADKY 4
 
+#define MPI_STATUS_KOD_NEDELAM_NIC 1
+#define MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION 2
+#define MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY 3
 
 using namespace std;
 
@@ -304,6 +309,7 @@ int main(int argc, char *argv[])
             //
             for (unsigned int proces = 1; proces<mpi_count; proces++) {
                 int eid_procesu=proces-1;
+                bool breakuj_for = false;
 
                 //zeptame se procesu na status
                 //odpovi nam:
@@ -315,22 +321,72 @@ int main(int argc, char *argv[])
                 //           * vezmeme mezivysledek, ulozime. posleme aktualizovanou predchozi radku
                 //    - mam, koncim, dam ti mezivysledek, binarni matici, a pak mi posli neco noveho
                 //           * vezmeme mezivysledek; vezmeme binarni radku, zkusime jestli je co poslat, kdyztak rekneme cekej
+                int ukol = 0;
+                MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
+                unsigned int zpracovavana_radka = 0;
+                switch (ukol) {
+                    case MPI_STATUS_KOD_NEDELAM_NIC: // nic nedela, flakac
+                        if ((posledni_odeslana_radka+1) > pocet) {
+                            unsigned int chcip = 0;
+                            MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                            break;
+                        }
+                        ++posledni_odeslana_radka;
+                        MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                        //MPI_Send ( void *buf, int count, MPI_Datatype datatype, dest, tag, MPI_Comm comm );
 
-				cout <<"master" << endl;
-				resseni_matice[0]= new sol_node;
-				resseni_matice[0]->start = 10;
-				resseni_matice[0]->sum = 10;
-				resseni_matice[0]->nxt = NULL;
+                        //musim tu poresit pripady, kdy jsem na zacatku, a nemuzu dat dalsim procesum
+                        if (eid_procesu==counter) breakuj_for = true;
+                    break;
+                    case MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION: // maka, bude makat
+                        MPI_Recv(&zpracovavana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
+                        prijmi_radku_reseni(proces, zpracovavana_radka);
+                        posli_procesu_radku_reseni(proces, zpracovavana_radka-1);
+                        // zadny GO by nemelo byt treba
+                    break;
+                    case MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY: // skoncil, dame mu neco?
+                        MPI_Recv(&zpracovavana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
+                        prijmi_radku_reseni(proces, zpracovavana_radka);
+                        prijmi_radku_binarni(proces, zpracovavana_radka);
 
-				posli_procesu_radku_reseni(proces, 0);
+                        ///stejny kod jako v MPI_STATUS_KOD_NEDELAM_NIC
+                        if ((posledni_odeslana_radka+1) > pocet) {
+                            unsigned int chcip = 0;
+                            MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+
+                            /// tohle se lisi od preschoziho, musime kdyztak ukoncit vsechny procesy
+                            if (zpracovavana_radka == pocet+1 ) pokracuj = false;
+                            /// ALERT! ;-)
+
+                            /// PLUS uklid pameti!
+                            /// mozna nechame jednu radku navic, ale to nas uz moc nepali
+                            if ((zpracovavana_radka - mpi_count -1) > 0) vynuluj_radku_reseni(zpracovavana_radka - mpi_count -1);
+
+                            /// konec lisici se casti
+
+                            break;
+                        }
+                        ++posledni_odeslana_radka;
+                        MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                        //MPI_Send ( void *buf, int count, MPI_Datatype datatype, dest, tag, MPI_Comm comm );
+
+                        //musim tu poresit pripady, kdy jsem na zacatku, a nemuzu dat dalsim procesum
+                        if (eid_procesu==counter) breakuj_for = true;
+                    break;
 
 
+                }
+
+
+
+                //MPI_Recv ( void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status )
+
+                if (breakuj_for) break;
             }
 
 
             ++counter;
 
-            pokracuj = false;
         }
 
 
