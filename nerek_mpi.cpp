@@ -16,7 +16,7 @@
 //#define __TEST 1
 //#define __TISKNI_FINALNI_MATICE 1
 
-#define LOOP_SIZE 1000
+#define LOOP_SIZE 100
 #define PRECISION 1000
 #define MPI_BUFFER_LENGTH 100
 #define MPI_TAG_SOL_NODE 1
@@ -299,17 +299,30 @@ int main(int argc, char *argv[])
         unsigned int cela_prijata_radka = 0;
         unsigned int posledni_odeslana_radka = 0;
         bool pokracuj = true;
+        unsigned int counter = 0;
         while(pokracuj) {
             //
-            for (unsigned int proces = 1; proces<=mpi_count; proces++) {
+            for (unsigned int proces = 1; proces<mpi_count; proces++) {
                 int eid_procesu=proces-1;
 
-                //
-                //
-                //
-                //
+                //zeptame se procesu na status
+                //odpovi nam:
+                //    - nemam nic, neco mi dej
+                //           * posleme jestli je co.
+                //           * neni-li co, rekneme cekej
+                //           * mame-li jiz vse, posleme "konci"
+                //    - mam, budu pokracovat, dam ti mezivysledek - a cislo radky (radka by se asi dala dopocitat podle cisla procesu a rozdanych radek ...)
+                //           * vezmeme mezivysledek, ulozime. posleme aktualizovanou predchozi radku
+                //    - mam, koncim, dam ti mezivysledek, binarni matici, a pak mi posli neco noveho
+                //           * vezmeme mezivysledek; vezmeme binarni radku, zkusime jestli je co poslat, kdyztak rekneme cekej
+
+
+
+
             }
 
+
+            ++counter;
 
             pokracuj = false;
         }
