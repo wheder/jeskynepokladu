@@ -317,6 +317,11 @@ int main(int argc, char *argv[])
                 //           * vezmeme mezivysledek; vezmeme binarni radku, zkusime jestli je co poslat, kdyztak rekneme cekej
 
 				cout <<"master" << endl;
+				resseni_matice[0]= new sol_node;
+				resseni_matice[0]->start = 10;
+				resseni_matice[0]->sum = 10;
+				resseni_matice[0]->nxt = NULL;
+
 				posli_procesu_radku_reseni(proces, 0);
 
 
@@ -345,8 +350,8 @@ int main(int argc, char *argv[])
 		cout <<"worker" << endl;
 		prijmi_radku_reseni(0, 0);
 		
-		cout << binarni_matice[0].start << endl;
-		cout << binarni_matice[0].sum << endl;
+		cout << resseni_matice[0]->start << endl;
+		cout << resseni_matice[0]->sum << endl;
 
     }
 
