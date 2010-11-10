@@ -20,6 +20,7 @@
 #define PRECISION 1000
 #define MPI_BUFFER_LENGTH 100
 #define MPI_TAG_SOL_NODE 1
+#define MPI_TAG_KEP_NODE 2
 
 
 using namespace std;
@@ -31,6 +32,9 @@ unsigned int total_objem =0;
 unsigned int pocet = 0;
 double max_objem = 0;
 double max_sum = 0;
+
+//na tohle prdime, nebudeme to vetsinou ani pouzivat, ale ono ho to chce
+MPI_Status mpi_status;
 
 
 int mpi_count = 0;
@@ -121,7 +125,7 @@ void posli_procesu_radku_binarni(int cislo_procesu, unsigned int radka) {
     while (jedeme) {
         char buffer[MPI_BUFFER_LENGTH];
         int position = 0;
-        int tag = MPI_TAG_SOL_NODE;
+        int tag = MPI_TAG_KEP_NODE;
         MPI_Pack(&(bunka->start), 1, MPI_UNSIGNED, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
         MPI_Pack(&(bunka->bereme), 1, MPI_CHAR, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
         if (bunka->nxt != NULL) bunka = bunka->nxt;
@@ -129,6 +133,77 @@ void posli_procesu_radku_binarni(int cislo_procesu, unsigned int radka) {
         MPI_Pack(&jedeme, 1, MPI_INT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);//indikator ze je prvek posledni
         MPI_Send (buffer, position, MPI_PACKED, cislo_procesu, tag, MPI_COMM_WORLD);
     }
+}
+
+/* nulovat radku binarni matice neni potreba, tu totiz chceme celou, a posilame ji jen jedenkrat */
+
+void vynuluj_radku_reseni(unsigned int radka) {
+    sol_node * soucasny = resseni_matice[radka];
+    while(soucasny->nxt != NULL) {
+        sol_node * minuly = soucasny;
+        soucasny = soucasny->nxt;
+        delete minuly;
+    }
+    delete soucasny;
+}
+
+void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
+    vynuluj_radku_reseni(radka);
+
+    sol_node * prvni = NULL;
+    //sol_node * soucasna = NULL;
+    sol_node * minula = NULL;
+    int jedeme = 1;
+    while (jedeme) {
+        sol_node * bunka = new sol_node;
+        char buffer[MPI_BUFFER_LENGTH];
+        int position = 0;
+        int tag = MPI_TAG_SOL_NODE;
+
+        MPI_Recv(buffer, MPI_BUFFER_LENGTH, MPI_PACKED, cislo_odesilatele, tag, MPI_COMM_WORLD, &mpi_status);
+        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->start), 1, MPI_UNSIGNED, MPI_COMM_WORLD);
+        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->sum), 1, MPI_FLOAT, MPI_COMM_WORLD);
+        bunka->nxt = NULL;
+        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &jedeme, 1, MPI_INT, MPI_COMM_WORLD);
+
+        if (prvni == NULL) prvni = bunka;
+        if (minula != NULL) {
+            minula->nxt = bunka;
+        }
+        minula = bunka;
+    }
+    resseni_matice[radka] = prvni;
+}
+
+void prijmi_radku_binarni(int cislo_odesilatele, unsigned int radka) {
+
+    //zbavime se toho jedineho pohrobka
+    kep_node * old = binarni_matice[radka];
+    delete old;
+    //nebo ho taky nemusime na zacatku vubec setovat
+
+    kep_node * prvni = NULL;
+    kep_node * minula = NULL;
+    int jedeme = 1;
+    while (jedeme) {
+        kep_node * bunka = new kep_node;
+        char buffer[MPI_BUFFER_LENGTH];
+        int position = 0;
+        int tag = MPI_TAG_KEP_NODE;
+
+        MPI_Recv(buffer, MPI_BUFFER_LENGTH, MPI_PACKED, cislo_odesilatele, tag, MPI_COMM_WORLD, &mpi_status);
+        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->start), 1, MPI_UNSIGNED, MPI_COMM_WORLD);
+        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->bereme), 1, MPI_CHAR, MPI_COMM_WORLD);
+        bunka->nxt = NULL;
+        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &jedeme, 1, MPI_INT, MPI_COMM_WORLD);
+
+        if (prvni == NULL) prvni = bunka;
+        if (minula != NULL) {
+            minula->nxt = bunka;
+        }
+        minula = bunka;
+    }
+    binarni_matice[radka] = prvni;
 }
 
 
@@ -218,17 +293,20 @@ int main(int argc, char *argv[])
         //takze kdyz bude vice procesu nez prvku co mame, tak si teda nezamakaji.
         unsigned int cela_prijata_radka = 0;
         unsigned int posledni_odeslana_radka = 0;
-        while(true) {
+        bool pokracuj = true;
+        while(pokracuj) {
             //
             for (unsigned int proces = 1; proces<=mpi_count; proces++) {
+                int eid_procesu=proces-1;
+
                 //
                 //
                 //
                 //
             }
 
-break;
 
+            pokracuj = false;
         }
 
 
