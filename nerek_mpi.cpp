@@ -219,12 +219,12 @@ int main(int argc, char *argv[])
         unsigned int cela_prijata_radka = 0;
         unsigned int posledni_odeslana_radka = 0;
         while(true) {
-
+            //
             for (unsigned int proces = 1; proces<=mpi_count; proces++) {
-                
-
-
-
+                //
+                //
+                //
+                //
             }
 
 break;
