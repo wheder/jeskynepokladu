@@ -139,7 +139,7 @@ void posli_procesu_radku_binarni(int cislo_procesu, unsigned int radka) {
 void vynuluj_radku_binarni(unsigned int radka) {
     kep_node * soucasny = binarni_matice[radka];
     while(soucasny->nxt != NULL) {
-        sol_node * minuly = soucasny;
+        kep_node * minuly = soucasny;
         soucasny = soucasny->nxt;
         delete minuly;
     }
