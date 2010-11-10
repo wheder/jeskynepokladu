@@ -10,14 +10,16 @@
 #include <cmath>
 //#include <boost/dynamic_bitset.hpp>
 
-//#include "mpi.h"
+#include "mpi.h"
 #include <stdlib.h>
 
 //#define __TEST 1
 //#define __TISKNI_FINALNI_MATICE 1
 
 #define LOOP_SIZE 1000
-#define PRECISION 1000
+#define PRECISION 100
+#define MPI_BUFFER_LENGTH 100
+#define MPI_TAG_SOL_NODE 1
 
 
 using namespace std;
@@ -42,7 +44,7 @@ struct sol_node {
 
 struct kep_node {
     unsigned int start; // kde zacina platit tento prvek
-    bool bereme; //vezmeme odsud tento prvek?
+    char bereme; //vezmeme odsud tento prvek?
     kep_node *nxt;        // Pointer to next node
 };
 
@@ -97,17 +99,49 @@ void beru(bool hodnota, unsigned int radka, unsigned int start) {
     bunka->nxt = novy;
 }
 
+void posli_procesu_radku_reseni(int cislo_procesu, unsigned int radka) {
+    sol_node * bunka = resseni_matice[radka];
+    int jedeme = 1;
+    while (jedeme) {
+        char buffer[MPI_BUFFER_LENGTH];
+        int position = 0;
+        int tag = MPI_TAG_SOL_NODE;
+        MPI_Pack(&(bunka->start), 1, MPI_UNSIGNED, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
+        MPI_Pack(&(bunka->sum), 1, MPI_FLOAT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
+        if (bunka->nxt != NULL) bunka = bunka->nxt;
+        else jedeme = 0;
+        MPI_Pack(&jedeme, 1, MPI_INT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);//indikator ze je prvek posledni
+        MPI_Send (buffer, position, MPI_PACKED, cislo_procesu, tag, MPI_COMM_WORLD);
+    }
+}
+
+void posli_procesu_radku_binarni(int cislo_procesu, unsigned int radka) {
+    kep_node * bunka = binarni_matice[radka];
+    int jedeme = 1;
+    while (jedeme) {
+        char buffer[MPI_BUFFER_LENGTH];
+        int position = 0;
+        int tag = MPI_TAG_SOL_NODE;
+        MPI_Pack(&(bunka->start), 1, MPI_UNSIGNED, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
+        MPI_Pack(&(bunka->bereme), 1, MPI_CHAR, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
+        if (bunka->nxt != NULL) bunka = bunka->nxt;
+        else jedeme = 0;
+        MPI_Pack(&jedeme, 1, MPI_INT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);//indikator ze je prvek posledni
+        MPI_Send (buffer, position, MPI_PACKED, cislo_procesu, tag, MPI_COMM_WORLD);
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
 
-//    MPI_Init( &argc, &argv );
+    MPI_Init( &argc, &argv );
 
     /* find out process rank */
-//    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_nr);
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_nr);
 
     /* find out number of processes */
-//    MPI_Comm_size(MPI_COMM_WORLD, &mpi_count);
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_count);
     if (mpi_count == 1) {
         cout << "Cannot run with just one process!" << endl;
         return 7;
@@ -182,25 +216,22 @@ int main(int argc, char *argv[])
         //postupne zacneme rozdelovat praci, dokud nebude cela rozdelena.
         //budeme postupovat trojuhelnikovite iteracne
         //takze kdyz bude vice procesu nez prvku co mame, tak si teda nezamakaji.
+        unsigned int cela_prijata_radka = 0;
+        unsigned int posledni_odeslana_radka = 0;
         while(true) {
 
-            for (unsigned int proces = 1; proces<mpi_count; proces++) {
-
+            for (unsigned int proces = 1; proces<=mpi_count; proces++) {
+                
 
 
 
             }
 
-
-            break;
-        }
-
-
-        for (unsigned int radka = 1;radka<pocet+1; ++radka) {//nuly uz jsme vyplnili vsude, tak zacneme od 1
-
-
+break;
 
         }
+
+
 
     }
     else {//workeri
@@ -218,6 +249,9 @@ int main(int argc, char *argv[])
 
 
     }
+
+
+    MPI_Finalize();
 
 
 
