@@ -8,7 +8,7 @@
 #include <iomanip>
 
 #include <cmath>
-#include <boost/dynamic_bitset.hpp>
+//#include <boost/dynamic_bitset.hpp>
 
 //#include "mpi.h"
 #include <stdlib.h>
@@ -16,8 +16,8 @@
 //#define __TEST 1
 //#define __TISKNI_FINALNI_MATICE 1
 
-#define LOOP_SIZE 200
-#define PRECISION 100
+#define LOOP_SIZE 1000
+#define PRECISION 1000
 
 
 using namespace std;
@@ -182,8 +182,41 @@ int main(int argc, char *argv[])
         //postupne zacneme rozdelovat praci, dokud nebude cela rozdelena.
         //budeme postupovat trojuhelnikovite iteracne
         //takze kdyz bude vice procesu nez prvku co mame, tak si teda nezamakaji.
+        while(true) {
+
+            for (unsigned int proces = 1; proces<mpi_count; proces++) {
+
+
+
+
+            }
+
+
+            break;
+        }
+
+
+        for (unsigned int radka = 1;radka<pocet+1; ++radka) {//nuly uz jsme vyplnili vsude, tak zacneme od 1
+
+
+
+        }
+
     }
     else {//workeri
+        //worker zacne tim ze ceka co s ebude dit.
+        //nejaky blokujici recieve, ve kterem bude receno bud neco jako "nic nebude, jsi navic" (cislo radky 0) (takze se jen ukonci), anebo cislo radky kterou bude zpracovavat
+
+        //po cisle radky mu posleme radku predchozi, kterou tady prijmeme.
+
+        //proces bude pocitat svuj chunk, a pak jej odesle masteru. (odesila celou radku)
+
+        //nasledne prijme opet cely predchzi radek, a zacne pokracovat dalsim chunkem ve svem radku.
+
+        //jakmile skonci, odesle posledni chunk, a potom celou radku z binarni matice. pote vymeze obe svoje pocitaci radky pak si rekne o dalsi radku (pokud dostane 0 tak konci)
+
+
+
     }
 
 
@@ -259,37 +292,6 @@ int main(int argc, char *argv[])
         }
     }
     //vyplnene matice
-
-    //tady bychom uz mohli znicit tu solution matrix
-/*
-#ifdef __TISKNI_FINALNI_MATICE
-    printf("SOLUTION_MATRIX\n");
-    for (int j =0; j<pocet+1; j++) {
-        if (j == 0 ) printf("%03d | %03d |||", 0,0);
-        else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
-
-        for (int q = 0; q<total_objem+1; q++) {
-            printf("%02d |", solution_matrix[j][q]);
-
-
-        }
-        printf("\n");
-    }
-    printf("\n");
-    printf("KEEEEEEP_MATRIX\n");
-    for (int j =0; j<pocet+1; j++) {
-        if (j == 0 ) printf("%03d | %03d |||", 0,0);
-        else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
-
-        for (int q = 0; q<total_objem+1; q++) {
-            //printf("%02d |", keeeeeep_matrix[j][q]);
-
-
-        }
-        printf("\n");
-    }
-    printf("\n");
-#endif /* __TISKNI_FINALNI_MATICE */
 
     unsigned int part_objem = total_objem;
     cout <<"sss" <<part_objem << endl;
