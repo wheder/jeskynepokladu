@@ -333,6 +333,7 @@ int main(int argc, char *argv[])
                         }
                         ++posledni_odeslana_radka;
                         MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                        posli_procesu_radku_reseni(proces, zpracovavana_radka-1);
                         //MPI_Send ( void *buf, int count, MPI_Datatype datatype, dest, tag, MPI_Comm comm );
 
                         //musim tu poresit pripady, kdy jsem na zacatku, a nemuzu dat dalsim procesum
@@ -396,6 +397,75 @@ int main(int argc, char *argv[])
         //worker zacne tim ze ceka co s ebude dit.
         //nejaky blokujici recieve, ve kterem bude receno bud neco jako "nic nebude, jsi navic" (cislo radky 0) (takze se jen ukonci), anebo cislo radky kterou bude zpracovavat
 
+        unsigned int cislo_chunku = 0;
+        unsigned int stav_workera = MPI_STATUS_KOD_NEDELAM_NIC;
+        unsigned int radka = 0;
+        while (true) {
+            MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
+            if (stav_workera == MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY) {
+                posli_procesu_radku_reseni(0, radka);
+                posli_procesu_radku_binarni(0, radka);
+                vynuluj_radku_reseni(radka);
+                vynuluj_radku_reseni(radka-1);
+                vynuluj_radku_binarni(radka);
+                stav_workera = MPI_STATUS_KOD_NEDELAM_NIC;
+            }
+
+            unsigned int odpoved = 0;
+            MPI_Recv(&odpoved, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
+            if (odpoved == 0) continue;
+            if (odpoved == pocet+5) break;
+
+            stav_workera = MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION;
+
+            radka = odpoved;
+            for(unsigned int bunka = 0; bunka <total_objem+1;++bunka) {
+                if (bunka%LOOP_SIZE == 0) {// coz je i na zacatku
+                    MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
+                    if (bunka != 0) posli_procesu_radku_reseni(0, radka);
+                    prijmi_radku_reseni(0, radka-1);
+                }
+                if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
+                    double uprow = get_value(radka-1, bunka);
+                    double suma_kdyz_vezmu = get_value(radka-1, bunka-objem[radka-1]) + C[radka-1];
+
+                    if (uprow < suma_kdyz_vezmu   ) {//je vetsi, napereme to tam
+                        pridej_hodnotu_na_konec(radka, bunka, suma_kdyz_vezmu);
+                        beru(true, radka, bunka);
+                    }
+                    else {//je nevyhodne to vzit
+                        double predchozi = get_value(radka, bunka);
+                        if (uprow != predchozi) {
+                            pridej_hodnotu_na_konec(radka, bunka, uprow);
+                        }
+                        beru(false, radka, bunka);
+                    }
+
+
+
+                }
+                else {//nevejde se, tak opiseme to co je nad tim
+                    double uprow = get_value(radka-1, bunka);
+                    double predchozi = get_value(radka, bunka);
+                    if (uprow != predchozi) {
+                        pridej_hodnotu_na_konec(radka, bunka, uprow);
+                    }
+                    //kdyz se nevejde, tak na to sereme, a jelikoz mame zinicializovano nulama, tak tam ta nula je.
+
+
+
+                }
+
+            }
+            //mame dopocitano
+            stav_workera = MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY;
+
+
+
+
+
+        }
+
         //po cisle radky mu posleme radku predchozi, kterou tady prijmeme.
 
         //proces bude pocitat svuj chunk, a pak jej odesle masteru. (odesila celou radku)
@@ -404,15 +474,15 @@ int main(int argc, char *argv[])
 
         //jakmile skonci, odesle posledni chunk, a potom celou radku z binarni matice. pote vymeze obe svoje pocitaci radky pak si rekne o dalsi radku (pokud dostane 0 tak konci)
 		cout <<"worker" << endl;
-		prijmi_radku_reseni(0, 0);
+                /*prijmi_radku_reseni(0, 0);
 		
 		cout << resseni_matice[0]->start << endl;
 		cout << resseni_matice[0]->sum << endl;
-
+*/
     }
 
 
-//    MPI_Finalize();
+    MPI_Finalize();
 
 /*
 
@@ -485,11 +555,11 @@ int main(int argc, char *argv[])
                 printf("\n");
             #endif /* __TEST */
 			
-/*			
+/*
         }
     }
     //vyplnene matice
-
+*/
     unsigned int part_objem = total_objem;
     cout <<"sss" <<part_objem << endl;
     cout <<"sss" <<pocet << endl;
@@ -510,7 +580,7 @@ int main(int argc, char *argv[])
     cout  << endl;
 
 //system("read -p a");
-*/
+
     //delete [] solution_matrix;
     //delete [] bitset_matrix;
     return 0;
