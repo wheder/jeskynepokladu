@@ -17,7 +17,7 @@
 //#define __TISKNI_FINALNI_MATICE 1
 
 #define LOOP_SIZE 100
-#define PRECISION 10
+#define PRECISION 100
 #define MPI_BUFFER_LENGTH 100
 #define MPI_TAG_SOL_NODE 1
 #define MPI_TAG_KEP_NODE 2
@@ -366,13 +366,20 @@ int main(int argc, char *argv[])
                         prijmi_radku_binarni(proces, zpracovavana_radka);
 
                         ///stejny kod jako v MPI_STATUS_KOD_NEDELAM_NIC
-                        if ((posledni_odeslana_radka+1) > pocet) {
+                        if ((posledni_odeslana_radka+1) >= pocet) {
                             unsigned int chcip = 0;
                             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
 
                             /// tohle se lisi od preschoziho, musime kdyztak ukoncit vsechny procesy
-                            if (zpracovavana_radka >= pocet-1 ) pokracuj = false;
+                            if (zpracovavana_radka == pocet ) {
+                                pokracuj = false;
+                                printf("__zpracovana_radka______ nepokracujeme %d\n", zpracovavana_radka);
+                                fflush(stdout);
+
+                            }
+
                             printf("__zpracovana_radka %d\n", zpracovavana_radka);
+                            fflush(stdout);
                             /// ALERT! ;-)
 
                             /// PLUS uklid pameti!
@@ -383,6 +390,10 @@ int main(int argc, char *argv[])
 
                             break;
                         }
+                        MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
+                        ++posledni_odeslana_radka;
+                        MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                        posli_procesu_radku_reseni(proces, posledni_odeslana_radka-1);
                         //-- ++posledni_odeslana_radka;
                         //-- MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
                         //MPI_Send ( void *buf, int count, MPI_Datatype datatype, dest, tag, MPI_Comm comm );
@@ -546,6 +557,7 @@ int main(int argc, char *argv[])
 
     }
 
+    printf("ja chcipam!!!!! procid %d\n", mpi_nr);
 
     MPI_Finalize();
 
