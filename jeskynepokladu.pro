@@ -10,4 +10,5 @@ SOURCES += main.cpp \
     main_par.cpp \
     testy.cpp \
     seq_nerek.cpp \
+    nerek_mpi_struct.cpp \
     nerek_mpi.cpp
