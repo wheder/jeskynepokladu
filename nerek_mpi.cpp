@@ -185,7 +185,6 @@ void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
         MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->sum), 1, MPI_DOUBLE, MPI_COMM_WORLD);
         bunka->nxt = NULL;
         MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &jedeme, 1, MPI_INT, MPI_COMM_WORLD);
-
         if (prvni == NULL) prvni = bunka;
         if (minula != NULL) {
             minula->nxt = bunka;
@@ -337,7 +336,7 @@ int main(int argc, char *argv[])
                         printf("got MPI_STATUS_KOD_NEDELAM_NIC\n");
                         fflush(stdout);
                         if ((posledni_odeslana_radka+1) > pocet) {
-                            unsigned int chcip = 0;
+                            unsigned int chcip = pocet + 5;
                             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
                             break;
                         }
@@ -366,20 +365,13 @@ int main(int argc, char *argv[])
                         prijmi_radku_binarni(proces, zpracovavana_radka);
 
                         ///stejny kod jako v MPI_STATUS_KOD_NEDELAM_NIC
-                        if ((posledni_odeslana_radka+1) >= pocet) {
-                            unsigned int chcip = 0;
+                        if ((posledni_odeslana_radka+1) > pocet) {
+                            unsigned int chcip = pocet + 5;
                             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
 
                             /// tohle se lisi od preschoziho, musime kdyztak ukoncit vsechny procesy
-                            if (zpracovavana_radka == pocet ) {
-                                pokracuj = false;
-                                printf("__zpracovana_radka______ nepokracujeme %d\n", zpracovavana_radka);
-                                fflush(stdout);
-
-                            }
-
+                            if (zpracovavana_radka >= pocet-1 ) pokracuj = false;
                             printf("__zpracovana_radka %d\n", zpracovavana_radka);
-                            fflush(stdout);
                             /// ALERT! ;-)
 
                             /// PLUS uklid pameti!
@@ -390,10 +382,6 @@ int main(int argc, char *argv[])
 
                             break;
                         }
-                        MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
-                        ++posledni_odeslana_radka;
-                        MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
-                        posli_procesu_radku_reseni(proces, posledni_odeslana_radka-1);
                         //-- ++posledni_odeslana_radka;
                         //-- MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
                         //MPI_Send ( void *buf, int count, MPI_Datatype datatype, dest, tag, MPI_Comm comm );
@@ -423,10 +411,8 @@ int main(int argc, char *argv[])
         for (unsigned int proces = 1; proces<mpi_count; proces++) {
             int ukol = 0;
             MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
-            unsigned int chcip = pocet +5;
+            unsigned int chcip = pocet +6;
             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
-            printf("killing %d, jeho ukol byl %d\n", proces, ukol);
-            fflush(stdout);
 
         }
 
@@ -436,7 +422,7 @@ int main(int argc, char *argv[])
         double dosazena_cena = 0;
         for (int index_prvku = pocet; index_prvku > 0; --index_prvku) {
             if (get_bere(index_prvku, part_objem) ) {
-                printf("%d | %.12f | %.12f \n",index_prvku, C[index_prvku-1],((double)(objem[index_prvku-1])/PRECISION)); // doubley
+                printf("%d | %.12f | %.12f \n",index_prvku, C[index_prvku-1],((float)(objem[index_prvku-1])/PRECISION)); // floaty
                 part_objem -= objem[index_prvku-1];
                 dosazena_cena += C[index_prvku-1];
             }
@@ -490,7 +476,10 @@ int main(int argc, char *argv[])
             MPI_Recv(&odpoved, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
             cout << "odpoved: " << odpoved << endl;
             if (odpoved == 0) continue;
-            if (odpoved == pocet+5) break;
+            if (odpoved == pocet+5) {
+				cout << "konecna!";
+				break;
+			}
 
             stav_workera = MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION;
 
@@ -510,7 +499,7 @@ int main(int argc, char *argv[])
                 if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
                     double uprow = get_value(radka-1, bunka);
                     double suma_kdyz_vezmu = get_value(radka-1, bunka-objem[radka-1]) + C[radka-1];
-
+					
                     if (uprow < suma_kdyz_vezmu   ) {//je vetsi, napereme to tam
                         pridej_hodnotu_na_konec(radka, bunka, suma_kdyz_vezmu);
                         beru(true, radka, bunka);
@@ -545,6 +534,17 @@ int main(int argc, char *argv[])
             MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
 
         }
+		while (true) {
+			unsigned int odpoved = 0;
+			stav_workera = MPI_STATUS_KOD_NEDELAM_NIC;
+			MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
+			MPI_Recv(&odpoved, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
+            cout << "odpoved: " << odpoved << endl;
+            if (odpoved == pocet+6) {
+				cout << "konecna!";
+				break;
+			}
+		}
 
         //po cisle radky mu posleme radku predchozi, kterou tady prijmeme.
 
@@ -557,9 +557,52 @@ int main(int argc, char *argv[])
 
     }
 
-    printf("ja chcipam!!!!! procid %d\n", mpi_nr);
 
     MPI_Finalize();
+
+/*
+
+
+    //ted ten iteracni algoritmus http://www.youtube.com/watch?v=hugQNiYoqUA
+    for (unsigned int radka = 1;radka<pocet+1; ++radka) {//nuly uz jsme vyplnili vsude, tak zacneme od 1
+
+        for(unsigned int bunka = 0; bunka <total_objem+1;++bunka) {
+
+            if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
+                double uprow = get_value(radka-1, bunka);
+                double suma_kdyz_vezmu = get_value(radka-1, bunka-objem[radka-1]) + C[radka-1];
+
+                if (uprow < suma_kdyz_vezmu   ) {//je vetsi, napereme to tam
+                    pridej_hodnotu_na_konec(radka, bunka, suma_kdyz_vezmu);
+                    beru(true, radka, bunka);
+                }
+                else {//je nevyhodne to vzit
+                    double predchozi = get_value(radka, bunka);
+                    if (uprow != predchozi) {
+                        pridej_hodnotu_na_konec(radka, bunka, uprow);
+                    }
+                    beru(false, radka, bunka);
+                }
+
+
+
+            }
+            else {//nevejde se, tak opiseme to co je nad tim
+                double uprow = get_value(radka-1, bunka);
+                double predchozi = get_value(radka, bunka);
+                if (uprow != predchozi) {
+                    pridej_hodnotu_na_konec(radka, bunka, uprow);
+                }
+                //kdyz se nevejde, tak na to sereme, a jelikoz mame zinicializovano nulama, tak tam ta nula je.
+
+
+
+            }
+/*
+        }
+    }
+
+*/
 
     return 0;
 }
