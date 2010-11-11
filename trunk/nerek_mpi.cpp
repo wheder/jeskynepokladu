@@ -109,10 +109,8 @@ void beru(bool hodnota, unsigned int radka, unsigned int start) {
 }
 
 void posli_procesu_radku_reseni(int cislo_procesu, unsigned int radka) {
-    printf("STA posli_procesu_radku_reseni od %d komu %d radka %d\n", mpi_nr, cislo_procesu, radka);
+    printf("posli_procesu_radku_reseni od %d komu %d radka %d\n", mpi_nr, cislo_procesu, radka);
     fflush(stdout);
-    int test_cnt = 0;
-
     sol_node * bunka = resseni_matice[radka];
     int jedeme = 1;
     while (jedeme) {
@@ -125,15 +123,12 @@ void posli_procesu_radku_reseni(int cislo_procesu, unsigned int radka) {
         else jedeme = 0;
         MPI_Pack(&jedeme, 1, MPI_INT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);//indikator ze je prvek posledni
         MPI_Send (buffer, position, MPI_PACKED, cislo_procesu, tag, MPI_COMM_WORLD);
-        test_cnt++;
     }
-    printf("END posli_procesu_radku_reseni od %d komu %d radka %d SENT %d\n", mpi_nr, cislo_procesu, radka, test_cnt);
-    fflush(stdout);
 }
 
 void posli_procesu_radku_binarni(int cislo_procesu, unsigned int radka) {
-    printf("STA posli_procesu_radku_binarni od %d komu %d radka %d\n", mpi_nr, cislo_procesu, radka);
-    fflush(stdout);
+	printf("posli_procesu_radku_binarni od %d komu %d radka %d\n", mpi_nr, cislo_procesu, radka);
+	fflush(stdout);
     kep_node * bunka = binarni_matice[radka];
     int jedeme = 1;
     while (jedeme) {
@@ -147,8 +142,6 @@ void posli_procesu_radku_binarni(int cislo_procesu, unsigned int radka) {
         MPI_Pack(&jedeme, 1, MPI_INT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);//indikator ze je prvek posledni
         MPI_Send (buffer, position, MPI_PACKED, cislo_procesu, tag, MPI_COMM_WORLD);
     }
-    printf("END posli_procesu_radku_binarni od %d komu %d radka %d\n", mpi_nr, cislo_procesu, radka);
-    fflush(stdout);
 }
 
 
@@ -173,10 +166,8 @@ void vynuluj_radku_reseni(unsigned int radka) {
 }
 
 void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
-    printf("STA prijmi_radku_reseni komu %d od %d radka %d\n", mpi_nr, cislo_odesilatele, radka);
+    printf("prijmi_radku_reseni komu %d od %d radka %d\n", mpi_nr, cislo_odesilatele, radka);
     fflush(stdout);
-    int test_cnt = 0;
-
     vynuluj_radku_reseni(radka);
 
     sol_node * prvni = NULL;
@@ -185,7 +176,6 @@ void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
     int jedeme = 1;
     while (jedeme) {
         sol_node * bunka = new sol_node;
-        test_cnt++;
         char buffer[MPI_BUFFER_LENGTH];
         int position = 0;
         int tag = MPI_TAG_SOL_NODE;
@@ -203,13 +193,10 @@ void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
         minula = bunka;
     }
     resseni_matice[radka] = prvni;
-
-    printf("END prijmi_radku_reseni komu %d od %d radka %d RECV %d\n", mpi_nr, cislo_odesilatele, radka, test_cnt);
-    fflush(stdout);
 }
 
 void prijmi_radku_binarni(int cislo_odesilatele, unsigned int radka) {
-    printf("STA prijmi_radku_binarni komu %d od %d radka %d\n", mpi_nr, cislo_odesilatele, radka);
+	printf("prijmi_radku_binarni komu %d od %d radka %d\n", mpi_nr, cislo_odesilatele, radka);
     fflush(stdout);
     vynuluj_radku_binarni(radka);
 
@@ -235,8 +222,6 @@ void prijmi_radku_binarni(int cislo_odesilatele, unsigned int radka) {
         minula = bunka;
     }
     binarni_matice[radka] = prvni;
-    printf("END prijmi_radku_binarni komu %d od %d radka %d\n", mpi_nr, cislo_odesilatele, radka);
-    fflush(stdout);
 }
 
 
@@ -344,12 +329,12 @@ int main(int argc, char *argv[])
                 //           * vezmeme mezivysledek, ulozime. posleme aktualizovanou predchozi radku
                 //    - mam, koncim, dam ti mezivysledek, binarni matici, a pak mi posli neco noveho
                 //           * vezmeme mezivysledek; vezmeme binarni radku, zkusime jestli je co poslat, kdyztak rekneme cekej
-                unsigned int ukol = 0;
-                MPI_Recv(&ukol, 1, MPI_UNSIGNED, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
+                int ukol = 0;
+                MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
                 unsigned int zpracovavana_radka = 0;
                 switch (ukol) {
                     case MPI_STATUS_KOD_NEDELAM_NIC: // nic nedela, flakac
-                        printf("got MPI_STATUS_KOD_NEDELAM_NIC from %d\n", proces);
+                        printf("got MPI_STATUS_KOD_NEDELAM_NIC\n");
                         fflush(stdout);
                         if ((posledni_odeslana_radka+1) > pocet) {
                             unsigned int chcip = 0;
@@ -365,21 +350,18 @@ int main(int argc, char *argv[])
                         if (eid_procesu==counter) breakuj_for = true;
                     break;
                     case MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION: // maka, bude makat
-                        printf("got MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION from %d\n", proces);
+                        printf("got MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION\n");
                         fflush(stdout);
                         MPI_Recv(&zpracovavana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
-                        printf("got MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION from %d --- cislo radky\n", proces);
-                        fflush(stdout);
                         prijmi_radku_reseni(proces, zpracovavana_radka);
                         posli_procesu_radku_reseni(proces, zpracovavana_radka-1);
                         // zadny GO by nemelo byt treba
                     break;
                     case MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY: // skoncil, dame mu neco?
-                        printf("got MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY from %d\n", proces);
+                        printf("got MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY\n");
                         fflush(stdout);
+						
                         MPI_Recv(&zpracovavana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
-                        printf("got MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY from %d -- recievnuto cislo radku\n", proces);
-                        fflush(stdout);
                         prijmi_radku_reseni(proces, zpracovavana_radka);
                         prijmi_radku_binarni(proces, zpracovavana_radka);
 
@@ -400,8 +382,8 @@ int main(int argc, char *argv[])
 
                             break;
                         }
-                        ++posledni_odeslana_radka;
-                        MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                        //-- ++posledni_odeslana_radka;
+                        //-- MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
                         //MPI_Send ( void *buf, int count, MPI_Datatype datatype, dest, tag, MPI_Comm comm );
 
                         //musim tu poresit pripady, kdy jsem na zacatku, a nemuzu dat dalsim procesum
@@ -435,54 +417,51 @@ int main(int argc, char *argv[])
 
         unsigned int cislo_chunku = 0;
         unsigned int stav_workera = MPI_STATUS_KOD_NEDELAM_NIC;
-        printf("setting status NEDELAM NIC A\n");
-        fflush(stdout);
         unsigned int radka = 0;
+		MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
         while (true) {
-            printf("sending status start %d\n", stav_workera);
-            fflush(stdout);
-            MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
-            printf("sent status %d\n", stav_workera);
-            fflush(stdout);
-
+		
+            unsigned int odpoved = 0;
             if (stav_workera == MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY) {
-                printf("posilam radku u hotoveho workera %d\n", radka);
-                fflush(stdout);
-
-                MPI_Send(&radka, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
-
-                posli_procesu_radku_reseni(0, radka);
-                posli_procesu_radku_binarni(0, radka);
-                vynuluj_radku_reseni(radka);
-                vynuluj_radku_reseni(radka-1);
-                vynuluj_radku_binarni(radka);
+            //    posli_procesu_radku_reseni(0, radka);
+            //    posli_procesu_radku_binarni(0, radka);
+            //    vynuluj_radku_reseni(radka);
+            //    vynuluj_radku_reseni(radka-1);
+            //    vynuluj_radku_binarni(radka);
+			
+				MPI_Send(&radka, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+				//printf("reseni komplet\n");
+                //        fflush(stdout);
+				posli_procesu_radku_reseni(0, radka);
+				//printf("binarni komplet\n");
+                //        fflush(stdout);
+				posli_procesu_radku_binarni(0, radka);
+				//prijmi_radku_reseni(0, radka-1);
                 stav_workera = MPI_STATUS_KOD_NEDELAM_NIC;
-                printf("setting status NEDELAM NIC B\n");
-                fflush(stdout);
-
+				MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
             }
 
-            unsigned int odpoved = 0;
             MPI_Recv(&odpoved, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
+			cout << "odpoved: " << odpoved << endl;
             if (odpoved == 0) continue;
             if (odpoved == pocet+5) break;
 
             stav_workera = MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION;
-            printf("setting status MAKAM\n");
-            fflush(stdout);
 
             radka = odpoved;
+			
             for(unsigned int bunka = 0; bunka <total_objem+1;++bunka) {
-                if (bunka != 0 && (bunka%LOOP_SIZE) == 0) {// coz je i na zacatku
-                    MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
-                    printf("sending status middle %d\n", stav_workera);
-                    fflush(stdout);
+                if (bunka%LOOP_SIZE == 0) {// coz je i na zacatku
+                    
                     if (bunka != 0) {
+						MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
                         MPI_Send(&radka, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
                         posli_procesu_radku_reseni(0, radka);
                     }
                     prijmi_radku_reseni(0, radka-1);
-                }
+                } else if(bunka == total_objem - 1) {
+					//
+				}
                 if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
                     double uprow = get_value(radka-1, bunka);
                     double suma_kdyz_vezmu = get_value(radka-1, bunka-objem[radka-1]) + C[radka-1];
@@ -516,11 +495,11 @@ int main(int argc, char *argv[])
 
             }
             //mame dopocitano
-            stav_workera = MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY;
-            printf("setting status KONEC\n");
-            fflush(stdout);
+            //stav_workera = MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY;
+			stav_workera = MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY;
+			MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
 
-
+cout <<"worker" << endl;
 
 
 
