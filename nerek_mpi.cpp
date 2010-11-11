@@ -109,6 +109,8 @@ void beru(bool hodnota, unsigned int radka, unsigned int start) {
 }
 
 void posli_procesu_radku_reseni(int cislo_procesu, unsigned int radka) {
+    printf("posli_procesu_radku_reseni od %d komu %d radka %d\n", mpi_nr, cislo_procesu, radka);
+    fflush(stdout);
     sol_node * bunka = resseni_matice[radka];
     int jedeme = 1;
     while (jedeme) {
@@ -162,6 +164,8 @@ void vynuluj_radku_reseni(unsigned int radka) {
 }
 
 void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
+    printf("prijmi_radku_reseni komu %d od %d radka %d\n", mpi_nr, cislo_odesilatele, radka);
+    fflush(stdout);
     vynuluj_radku_reseni(radka);
 
     sol_node * prvni = NULL;
@@ -326,6 +330,8 @@ int main(int argc, char *argv[])
                 unsigned int zpracovavana_radka = 0;
                 switch (ukol) {
                     case MPI_STATUS_KOD_NEDELAM_NIC: // nic nedela, flakac
+                        printf("got MPI_STATUS_KOD_NEDELAM_NIC\n");
+                        fflush(stdout);
                         if ((posledni_odeslana_radka+1) > pocet) {
                             unsigned int chcip = 0;
                             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
@@ -333,19 +339,23 @@ int main(int argc, char *argv[])
                         }
                         ++posledni_odeslana_radka;
                         MPI_Send(&posledni_odeslana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
-                        posli_procesu_radku_reseni(proces, zpracovavana_radka-1);
+                        posli_procesu_radku_reseni(proces, posledni_odeslana_radka-1);
                         //MPI_Send ( void *buf, int count, MPI_Datatype datatype, dest, tag, MPI_Comm comm );
 
                         //musim tu poresit pripady, kdy jsem na zacatku, a nemuzu dat dalsim procesum
                         if (eid_procesu==counter) breakuj_for = true;
                     break;
                     case MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION: // maka, bude makat
+                        printf("got MPI_STATUS_KOD_MAKAM_POSILAM_SOLUTION\n");
+                        fflush(stdout);
                         MPI_Recv(&zpracovavana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
                         prijmi_radku_reseni(proces, zpracovavana_radka);
                         posli_procesu_radku_reseni(proces, zpracovavana_radka-1);
                         // zadny GO by nemelo byt treba
                     break;
                     case MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY: // skoncil, dame mu neco?
+                        printf("got MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY\n");
+                        fflush(stdout);
                         MPI_Recv(&zpracovavana_radka, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
                         prijmi_radku_reseni(proces, zpracovavana_radka);
                         prijmi_radku_binarni(proces, zpracovavana_radka);
@@ -382,7 +392,10 @@ int main(int argc, char *argv[])
 
                 //MPI_Recv ( void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status )
 
-                if (breakuj_for) break;
+                if (breakuj_for) {
+
+                    break;
+                }
             }
 
 
@@ -422,7 +435,10 @@ int main(int argc, char *argv[])
             for(unsigned int bunka = 0; bunka <total_objem+1;++bunka) {
                 if (bunka%LOOP_SIZE == 0) {// coz je i na zacatku
                     MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
-                    if (bunka != 0) posli_procesu_radku_reseni(0, radka);
+                    if (bunka != 0) {
+                        MPI_Send(&radka, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                        posli_procesu_radku_reseni(0, radka);
+                    }
                     prijmi_radku_reseni(0, radka-1);
                 }
                 if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
