@@ -118,7 +118,7 @@ void posli_procesu_radku_reseni(int cislo_procesu, unsigned int radka) {
         int position = 0;
         int tag = MPI_TAG_SOL_NODE;
         MPI_Pack(&(bunka->start), 1, MPI_UNSIGNED, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
-        MPI_Pack(&(bunka->sum), 1, MPI_FLOAT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
+        MPI_Pack(&(bunka->sum), 1, MPI_DOUBLE, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);
         if (bunka->nxt != NULL) bunka = bunka->nxt;
         else jedeme = 0;
         MPI_Pack(&jedeme, 1, MPI_INT, buffer, MPI_BUFFER_LENGTH, &position, MPI_COMM_WORLD);//indikator ze je prvek posledni
@@ -182,7 +182,7 @@ void prijmi_radku_reseni(int cislo_odesilatele, unsigned int radka) {
 
         MPI_Recv(buffer, MPI_BUFFER_LENGTH, MPI_PACKED, cislo_odesilatele, tag, MPI_COMM_WORLD, &mpi_status);
         MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->start), 1, MPI_UNSIGNED, MPI_COMM_WORLD);
-        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->sum), 1, MPI_FLOAT, MPI_COMM_WORLD);
+        MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &(bunka->sum), 1, MPI_DOUBLE, MPI_COMM_WORLD);
         bunka->nxt = NULL;
         MPI_Unpack(buffer, MPI_BUFFER_LENGTH, &position, &jedeme, 1, MPI_INT, MPI_COMM_WORLD);
 
@@ -414,6 +414,8 @@ int main(int argc, char *argv[])
             MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
             unsigned int chcip = pocet +5;
             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+            printf("killing %d, jeho ukol byl %d\n", proces, ukol);
+            fflush(stdout);
 
         }
 
@@ -423,7 +425,7 @@ int main(int argc, char *argv[])
         double dosazena_cena = 0;
         for (int index_prvku = pocet; index_prvku > 0; --index_prvku) {
             if (get_bere(index_prvku, part_objem) ) {
-                printf("%d | %.12f | %.12f \n",index_prvku, C[index_prvku-1],((float)(objem[index_prvku-1])/PRECISION)); // floaty
+                printf("%d | %.12f | %.12f \n",index_prvku, C[index_prvku-1],((double)(objem[index_prvku-1])/PRECISION)); // doubley
                 part_objem -= objem[index_prvku-1];
                 dosazena_cena += C[index_prvku-1];
             }
@@ -546,50 +548,6 @@ int main(int argc, char *argv[])
 
 
     MPI_Finalize();
-
-/*
-
-
-    //ted ten iteracni algoritmus http://www.youtube.com/watch?v=hugQNiYoqUA
-    for (unsigned int radka = 1;radka<pocet+1; ++radka) {//nuly uz jsme vyplnili vsude, tak zacneme od 1
-
-        for(unsigned int bunka = 0; bunka <total_objem+1;++bunka) {
-
-            if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
-                double uprow = get_value(radka-1, bunka);
-                double suma_kdyz_vezmu = get_value(radka-1, bunka-objem[radka-1]) + C[radka-1];
-
-                if (uprow < suma_kdyz_vezmu   ) {//je vetsi, napereme to tam
-                    pridej_hodnotu_na_konec(radka, bunka, suma_kdyz_vezmu);
-                    beru(true, radka, bunka);
-                }
-                else {//je nevyhodne to vzit
-                    double predchozi = get_value(radka, bunka);
-                    if (uprow != predchozi) {
-                        pridej_hodnotu_na_konec(radka, bunka, uprow);
-                    }
-                    beru(false, radka, bunka);
-                }
-
-
-
-            }
-            else {//nevejde se, tak opiseme to co je nad tim
-                double uprow = get_value(radka-1, bunka);
-                double predchozi = get_value(radka, bunka);
-                if (uprow != predchozi) {
-                    pridej_hodnotu_na_konec(radka, bunka, uprow);
-                }
-                //kdyz se nevejde, tak na to sereme, a jelikoz mame zinicializovano nulama, tak tam ta nula je.
-
-
-
-            }
-/*
-        }
-    }
-
-*/
 
     return 0;
 }
