@@ -311,8 +311,13 @@ int main(int argc, char *argv[])
         unsigned int cela_prijata_radka = 0;
         unsigned int posledni_odeslana_radka = 0;
         bool pokracuj = true;
+		bool pokracuj2 = true;
         unsigned int counter = 0;
-        while(pokracuj) {
+        while(pokracuj || pokracuj2) {
+		
+			if(pokracuj == false) {
+				pokracuj2 = false;
+			}
             //
             for (unsigned int proces = 1; proces<mpi_count; proces++) {
                 int eid_procesu=proces-1;
@@ -405,7 +410,7 @@ int main(int argc, char *argv[])
 
 
             ++counter;
-
+			
         }
 
         for (unsigned int proces = 1; proces<mpi_count; proces++) {
@@ -541,7 +546,7 @@ int main(int argc, char *argv[])
 			MPI_Recv(&odpoved, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
             cout << "odpoved: " << odpoved << endl;
             if (odpoved == pocet+6) {
-				cout << "konecna!";
+				cout << "konecna!" << endl;
 				break;
 			}
 		}
