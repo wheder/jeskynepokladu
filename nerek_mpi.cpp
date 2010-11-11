@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
                             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
 
                             /// tohle se lisi od preschoziho, musime kdyztak ukoncit vsechny procesy
-                            if (zpracovavana_radka >= pocet-1 ) pokracuj = false;
+                            if (zpracovavana_radka >= pocet ) pokracuj = false;
                             printf("__zpracovana_radka %d\n", zpracovavana_radka);
                             /// ALERT! ;-)
 
@@ -416,6 +416,15 @@ int main(int argc, char *argv[])
         for (unsigned int proces = 1; proces<mpi_count; proces++) {
             int ukol = 0;
             MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
+            printf("PID: %d, dela akci %d\n", proces, ukol);
+            unsigned int chcip = 0;
+            MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+
+        }
+        for (unsigned int proces = 1; proces<mpi_count; proces++) {
+            int ukol = 0;
+            MPI_Recv(&ukol, 1, MPI_INT, proces, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD, &mpi_status);
+            printf("PID: %d, dela akci %d\n", proces, ukol);
             unsigned int chcip = pocet +6;
             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
 
