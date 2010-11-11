@@ -371,7 +371,8 @@ int main(int argc, char *argv[])
                             MPI_Send(&chcip, 1, MPI_UNSIGNED, proces, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
 
                             /// tohle se lisi od preschoziho, musime kdyztak ukoncit vsechny procesy
-                            if (zpracovavana_radka == pocet+1 ) pokracuj = false;
+                            if (zpracovavana_radka == pocet-1 ) pokracuj = false;
+                            printf("__zpracovana_radka %d", zpracovavana_radka);
                             /// ALERT! ;-)
 
                             /// PLUS uklid pameti!
@@ -408,7 +409,23 @@ int main(int argc, char *argv[])
 
         }
 
+        unsigned int part_objem = total_objem;
+        //cout <<"sss" <<part_objem << endl;
+        //cout <<"sss" <<pocet << endl;
+        double dosazena_cena = 0;
+        for (int index_prvku = pocet; index_prvku > 0; --index_prvku) {
+            if (get_bere(index_prvku, part_objem) ) {
+                printf("%d | %.12f | %.12f \n",index_prvku, C[index_prvku-1],((float)(objem[index_prvku-1])/PRECISION)); // floaty
+                part_objem -= objem[index_prvku-1];
+                dosazena_cena += C[index_prvku-1];
+            }
 
+
+
+        }
+
+        printf("cena: %.12f",dosazena_cena);
+        cout  << endl;
 
     }
     else {//workeri
@@ -418,31 +435,39 @@ int main(int argc, char *argv[])
         unsigned int cislo_chunku = 0;
         unsigned int stav_workera = MPI_STATUS_KOD_NEDELAM_NIC;
         unsigned int radka = 0;
-		MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
+        MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
         while (true) {
 		
             unsigned int odpoved = 0;
             if (stav_workera == MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY) {
-            //    posli_procesu_radku_reseni(0, radka);
-            //    posli_procesu_radku_binarni(0, radka);
-            //    vynuluj_radku_reseni(radka);
-            //    vynuluj_radku_reseni(radka-1);
-            //    vynuluj_radku_binarni(radka);
+                //posli_procesu_radku_reseni(0, radka);
+                //posli_procesu_radku_binarni(0, radka);
 			
-				MPI_Send(&radka, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
-				//printf("reseni komplet\n");
-                //        fflush(stdout);
-				posli_procesu_radku_reseni(0, radka);
-				//printf("binarni komplet\n");
-                //        fflush(stdout);
-				posli_procesu_radku_binarni(0, radka);
-				//prijmi_radku_reseni(0, radka-1);
+                MPI_Send(&radka, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
+                //printf("reseni komplet\n");
+                //fflush(stdout);
+                posli_procesu_radku_reseni(0, radka);
+                //printf("binarni komplet\n");
+                //fflush(stdout);
+                posli_procesu_radku_binarni(0, radka);
+                //prijmi_radku_reseni(0, radka-1);
+
+                //vynuluj_radku_reseni(radka);
+                /*if (mpi_nr == 2) {//do tohohle radku budeme jeste hrabat, kdyz jsme dva.
+                    resseni_matice[radka]= new sol_node;
+                    resseni_matice[radka]->start = 0;
+                    resseni_matice[radka]->sum = 0;
+                    resseni_matice[radka]->nxt = NULL;
+                }*/
+                vynuluj_radku_reseni(radka-1);
+                vynuluj_radku_binarni(radka);
+
                 stav_workera = MPI_STATUS_KOD_NEDELAM_NIC;
-				MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
+                MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
             }
 
             MPI_Recv(&odpoved, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD, &mpi_status);
-			cout << "odpoved: " << odpoved << endl;
+            cout << "odpoved: " << odpoved << endl;
             if (odpoved == 0) continue;
             if (odpoved == pocet+5) break;
 
@@ -454,14 +479,13 @@ int main(int argc, char *argv[])
                 if (bunka%LOOP_SIZE == 0) {// coz je i na zacatku
                     
                     if (bunka != 0) {
-						MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
+                        MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
                         MPI_Send(&radka, 1, MPI_UNSIGNED, 0, MPI_TAG_CISLO_RADKY, MPI_COMM_WORLD);
                         posli_procesu_radku_reseni(0, radka);
                     }
                     prijmi_radku_reseni(0, radka-1);
-                } else if(bunka == total_objem - 1) {
-					//
-				}
+                }
+
                 if (objem[(radka-1)] <= bunka) {//prvek by se mohl vejit
                     double uprow = get_value(radka-1, bunka);
                     double suma_kdyz_vezmu = get_value(radka-1, bunka-objem[radka-1]) + C[radka-1];
@@ -496,12 +520,8 @@ int main(int argc, char *argv[])
             }
             //mame dopocitano
             //stav_workera = MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY;
-			stav_workera = MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY;
-			MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
-
-cout <<"worker" << endl;
-
-
+            stav_workera = MPI_STATUS_KOD_HOTOVO_POSILAM_VYSLEDKY;
+            MPI_Send(&stav_workera, 1, MPI_UNSIGNED, 0, MPI_TAG_STATUS_KOD, MPI_COMM_WORLD);
 
         }
 
@@ -512,12 +532,8 @@ cout <<"worker" << endl;
         //nasledne prijme opet cely predchzi radek, a zacne pokracovat dalsim chunkem ve svem radku.
 
         //jakmile skonci, odesle posledni chunk, a potom celou radku z binarni matice. pote vymeze obe svoje pocitaci radky pak si rekne o dalsi radku (pokud dostane 0 tak konci)
-		cout <<"worker" << endl;
-                /*prijmi_radku_reseni(0, 0);
-		
-		cout << resseni_matice[0]->start << endl;
-		cout << resseni_matice[0]->sum << endl;
-*/
+
+
     }
 
 
@@ -561,67 +577,12 @@ cout <<"worker" << endl;
 
 
             }
-            /*
-            #ifdef __TEST
-                printf("SOLUTION_MATRIX\n");
-                for (int j =0; j<pocet+1; j++) {
-                    if (j == 0 ) printf("%03d | %03d |||", 0,0);
-                    else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
-
-                    for (int q = 0; q<total_objem+1; q++) {
-                        //printf("% 2d |", keeeeeep_matrix[j][q]);
-
-
-                    }
-                    printf("\n");
-                }
-                printf("\n");
-            #endif /* __TEST */
-            /*
-            #ifdef __TEST
-                printf("KEEEEEEP_MATRIX\n");
-                for (int j =0; j<pocet+1; j++) {
-                    if (j == 0 ) printf("%03d | %03d |||", 0,0);
-                    else printf("%03d | %03d |||", cena[j-1],objem[j-1]);
-
-                    for (int q = 0; q<total_objem+1; q++) {
-                        //printf("% 2d |", keeeeeep_matrix[j][q]);
-
-
-                    }
-                    printf("\n");
-                }
-                printf("\n");
-            #endif /* __TEST */
-			
 /*
         }
     }
-    //vyplnene matice
+
 */
-    unsigned int part_objem = total_objem;
-    cout <<"sss" <<part_objem << endl;
-    cout <<"sss" <<pocet << endl;
-    double dosazena_cena = 0;
-    for (int index_prvku = pocet; index_prvku > 0; --index_prvku) {
-        if (get_bere(index_prvku, part_objem) ) {
-            printf("%d | %.12f | %.12f \n",index_prvku, C[index_prvku-1],((float)(objem[index_prvku-1])/PRECISION)); // floaty
-            part_objem -= objem[index_prvku-1];
-//    cout <<"sss" <<part_objem << endl;
-            dosazena_cena += C[index_prvku-1];
-        }
 
-
-
-    }
-
-    printf("cena: %.12f",dosazena_cena);
-    cout  << endl;
-
-//system("read -p a");
-
-    //delete [] solution_matrix;
-    //delete [] bitset_matrix;
     return 0;
 }
 
