@@ -38,6 +38,9 @@ unsigned int pocet = 0;
 double max_objem = 0;
 double max_sum = 0;
 
+double start_time, end_time;
+
+
 //na tohle prdime, nebudeme to vetsinou ani pouzivat, ale ono ho to chce
 MPI_Status mpi_status;
 
@@ -302,9 +305,12 @@ int main(int argc, char *argv[])
 
 
 
-
+    MPI_Barrier(MPI_COMM_WORLD);
 
     if (mpi_nr == 0) {//hlavni rozdelovaci proces
+
+	
+	start_time = MPI_Wtime ();
         //postupne zacneme rozdelovat praci, dokud nebude cela rozdelena.
         //budeme postupovat trojuhelnikovite iteracne
         //takze kdyz bude vice procesu nez prvku co mame, tak si teda nezamakaji.
@@ -570,8 +576,12 @@ int main(int argc, char *argv[])
 
 
     }
-
-
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (mpi_nr == 0) {
+        end_time=MPI_Wtime();
+        printf ("Spotrebovany cas je %f.\n",end_time-start_time);
+    }
     MPI_Finalize();
 
 /*
