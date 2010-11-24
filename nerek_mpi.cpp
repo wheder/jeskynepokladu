@@ -16,8 +16,8 @@
 //#define __TEST 1
 //#define __TISKNI_FINALNI_MATICE 1
 
-#define LOOP_SIZE 100
-#define PRECISION 100
+#define LOOP_SIZE 800
+#define PRECISION 1000
 #define MPI_BUFFER_LENGTH 100
 #define MPI_TAG_SOL_NODE 1
 #define MPI_TAG_KEP_NODE 2
