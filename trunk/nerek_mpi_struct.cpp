@@ -17,7 +17,7 @@
 //#define __TISKNI_FINALNI_MATICE 1
 
 #define LOOP_SIZE 200
-#define PRECISION 100
+#define PRECISION 1000
 
 
 using namespace std;
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 //    MPI_Comm_size(MPI_COMM_WORLD, &mpi_count);
     if (mpi_count == 1) {
         cout << "Cannot run with just one process!" << endl;
-        return 7;
+        //return 7;
     }
 
     if (argc != 2) {
