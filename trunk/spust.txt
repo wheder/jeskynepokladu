@@ -1,0 +1,51 @@
+qsub -pe ompi 2 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_35_eth_2.sh 
+qsub -pe ompi 4 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_35_eth_4.sh 
+qsub -pe ompi 8 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_35_eth_8.sh 
+qsub -pe ompi 16 -q long.q -l plq /home/holyjak1/paralel/parallel_job_35_eth_16.sh 
+qsub -pe ompi 24 -q long.q -l plq /home/holyjak1/paralel/parallel_job_35_eth_24.sh 
+qsub -pe ompi 32 -q long.q -l plq /home/holyjak1/paralel/parallel_job_35_eth_32.sh 
+
+qsub -pe ompi 2 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_35_inf_2.sh 
+qsub -pe ompi 4 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_35_inf_4.sh 
+qsub -pe ompi 8 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_35_inf_8.sh 
+qsub -pe ompi 16 -q long.q -l plq /home/holyjak1/paralel/parallel_job_35_inf_16.sh 
+qsub -pe ompi 24 -q long.q -l plq /home/holyjak1/paralel/parallel_job_35_inf_24.sh 
+qsub -pe ompi 32 -q long.q -l plq /home/holyjak1/paralel/parallel_job_35_inf_32.sh 
+
+
+
+
+qsub -pe ompi 2 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_40_eth_2.sh 
+qsub -pe ompi 4 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_40_eth_4.sh 
+qsub -pe ompi 8 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_40_eth_8.sh 
+qsub -pe ompi 16 -q long.q -l plq /home/holyjak1/paralel/parallel_job_40_eth_16.sh 
+qsub -pe ompi 24 -q long.q -l plq /home/holyjak1/paralel/parallel_job_40_eth_24.sh 
+qsub -pe ompi 32 -q long.q -l plq /home/holyjak1/paralel/parallel_job_40_eth_32.sh 
+
+qsub -pe ompi 2 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_40_inf_2.sh 
+qsub -pe ompi 4 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_40_inf_4.sh 
+qsub -pe ompi 8 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_40_inf_8.sh 
+qsub -pe ompi 16 -q long.q -l plq /home/holyjak1/paralel/parallel_job_40_inf_16.sh 
+qsub -pe ompi 24 -q long.q -l plq /home/holyjak1/paralel/parallel_job_40_inf_24.sh 
+qsub -pe ompi 32 -q long.q -l plq /home/holyjak1/paralel/parallel_job_40_inf_32.sh 
+
+
+
+
+qsub -pe ompi 2 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_45_eth_2.sh 
+qsub -pe ompi 4 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_45_eth_4.sh 
+qsub -pe ompi 8 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_45_eth_8.sh 
+qsub -pe ompi 16 -q long.q -l plq /home/holyjak1/paralel/parallel_job_45_eth_16.sh 
+qsub -pe ompi 24 -q long.q -l plq /home/holyjak1/paralel/parallel_job_45_eth_24.sh 
+qsub -pe ompi 32 -q long.q -l plq /home/holyjak1/paralel/parallel_job_45_eth_32.sh 
+
+qsub -pe ompi 2 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_45_inf_2.sh 
+qsub -pe ompi 4 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_45_inf_4.sh 
+qsub -pe ompi 8 -q default.q -l pdq /home/holyjak1/paralel/parallel_job_45_inf_8.sh 
+qsub -pe ompi 16 -q long.q -l plq /home/holyjak1/paralel/parallel_job_45_inf_16.sh 
+qsub -pe ompi 24 -q long.q -l plq /home/holyjak1/paralel/parallel_job_45_inf_24.sh 
+qsub -pe ompi 32 -q long.q -l plq /home/holyjak1/paralel/parallel_job_45_inf_32.sh 
+
+
+
+
