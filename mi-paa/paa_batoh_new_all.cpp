@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         for ( int q = 0; q< pocet; q++) {
             printf(" %d", (int)max_arr[q]);
         }
-        printf(" --- %.7f", t2-t1);
+        printf(" --- %.12f", t2-t1);
         
         printf(" --- ");
         Prvek *prvky = new Prvek[pocet]; 
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
         t2=t_konec.tv_sec+(t_konec.tv_usec/1000000.0);
         
         printf("hm: %d cena: %d", hmotnost_tmp, cena_tmp);
-        printf(" --- %.7f", t2-t1);
+        printf(" --- %.12f", t2-t1);
         
         
         delete [] prvky;
