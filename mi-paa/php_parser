@@ -1,0 +1,32 @@
+#!/usr/bin/php
+<?php
+
+ini_set("precision", "20");
+$lines = file($_SERVER['argv'][1]);
+
+$h_time_sum = 0;
+$b_time_sum = 0;
+$chyby = array();
+$chyby_sum = 0;
+
+foreach ( $lines as $line) {
+    $odpomlckovano = explode(" --- ", $line);
+    $a = explode(" ", $odpomlckovano[0]);
+    
+    $b = explode(" ", $odpomlckovano[2]);
+    
+    
+    $copt = $a[2];
+    $capx = $b[3];
+    $heur_t = $odpomlckovano[4]/1000000.0;
+    $brute_t = $odpomlckovano[1];
+    
+    $chyby[] = ($copt-$capx)/$copt;
+    $chyby_sum += ($copt-$capx)/$copt;
+    
+    $h_time_sum+= $heur_t;
+    $b_time_sum+= $brute_t;
+    
+    
+}
+echo str_replace(".", ",",sprintf("%.20f %.20f %.20f %.20f \n",$b_time_sum/50, $h_time_sum/50, max($chyby), $chyby_sum/50));
