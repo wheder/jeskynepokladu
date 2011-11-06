@@ -177,6 +177,8 @@ int main(int argc, char *argv[])
         t2=t_konec.tv_sec+(t_konec.tv_usec/1000000.0);
         
         printf("hm: %d cena: %d", hmotnost_tmp, cena_tmp);
+	//$chyby[] = ($copt-$capx)/$copt;
+	printf(" chyba: %.12f", ((max_sum-cena_tmp)/(double)max_sum));
         printf(" --- %.12f", t2-t1);
         
         
