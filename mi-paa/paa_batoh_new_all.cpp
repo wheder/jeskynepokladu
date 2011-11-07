@@ -35,7 +35,7 @@ struct Prvek {
 
 
 int spocitej(bool * temp_arr, int new_index , int M_so_far, int C_so_far) {
-
+	//printf("cnf_called\n");
 
     M_so_far += M[new_index];
     C_so_far += C[new_index];
