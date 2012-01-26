@@ -1,0 +1,45 @@
+kubik@shawshank:/tmp/mipaa/kyble> g++ -Wall -pedantic kyble_neprior.cpp -O3; ./a.out in.dat 15
+id 11 hloubka 10  pocet stavu 8991 
+id 11 hloubka 10  pocet prohledanych stavu 8926 
+
+id 12 hloubka 8  pocet stavu 8083 
+id 12 hloubka 8  pocet prohledanych stavu 6039 
+
+id 13 hloubka 8  pocet stavu 7915 
+id 13 hloubka 8  pocet prohledanych stavu 5703 
+
+id 14 hloubka 3  pocet stavu 174 
+id 14 hloubka 3  pocet prohledanych stavu 28 
+
+id 21 hloubka 16  pocet stavu 49349 
+id 21 hloubka 16  pocet prohledanych stavu 49273 
+
+id 22 hloubka 12  pocet stavu 41670 
+id 22 hloubka 12  pocet prohledanych stavu 34978 
+
+id 23 hloubka 11  pocet stavu 35752 
+id 23 hloubka 11  pocet prohledanych stavu 27514 
+
+id 24 hloubka 5  pocet stavu 872 
+id 24 hloubka 5  pocet prohledanych stavu 253 
+
+id 25 hloubka 7  pocet stavu 6326 
+id 25 hloubka 7  pocet prohledanych stavu 2880 
+
+id 31 hloubka 14  pocet stavu 59199 
+id 31 hloubka 14  pocet prohledanych stavu 58984 
+
+id 32 hloubka 12  pocet stavu 58771 
+id 32 hloubka 12  pocet prohledanych stavu 55889 
+
+id 33 hloubka 10  pocet stavu 40908 
+id 33 hloubka 10  pocet prohledanych stavu 28213 
+
+id 34 hloubka 5  pocet stavu 1461 
+id 34 hloubka 5  pocet prohledanych stavu 383 
+
+id 35 hloubka 7  pocet stavu 9155 
+id 35 hloubka 7  pocet prohledanych stavu 3624 
+
+id 36 hloubka 9  pocet stavu 27773 
+id 36 hloubka 9  pocet prohledanych stavu 16056 

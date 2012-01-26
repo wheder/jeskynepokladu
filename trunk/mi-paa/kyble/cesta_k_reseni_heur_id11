@@ -1,0 +1,49 @@
+11 5
+14 10  6  2  8
+ 0  0  1  0  0
+12  6  4  1  8
+
+
+
+1  stary 0 -  _00 _00 _01 _00 _00 -- pred 0 
+naplnit 5
+2  stary 1 -  _00 _00 _01 _00 !08 -- pred 1 
+prelit 3>4
+3  stary 2 -  _00 _00 _00 !01 !08 -- pred 2 
+naplnit 1
+4  stary 2 -  _14 _00 _00 !01 !08 -- pred 3 
+naplnit 3
+7  stary 2 -  _14 _00 _06 !01 !08 -- pred 4 
+prelit 3>2
+8  stary 3 -  _14 !06 _00 !01 !08 -- pred 7 
+vylit 1
+9  stary 3 -  _00 !06 _00 !01 !08 -- pred 8 
+naplnit 3
+12  stary 3 -  _00 !06 _06 !01 !08 -- pred 9 
+prelit 3>1
+14  stary 3 -  _06 !06 _00 !01 !08 -- pred 12 
+naplnit 3
+16  stary 3 -  _06 !06 _06 !01 !08 -- pred 14 
+prelit 3>1
+17  stary 4 -  !12 !06 _00 !01 !08 -- pred 16 
+prelit 5>3
+21  stary 3 -  !12 !06 _06 !01 _02 -- pred 17 
+vylit 3
+27  stary 3 -  !12 !06 _00 !01 _02 -- pred 21 
+prelit 5>3
+89  stary 3 -  !12 !06 _02 !01 _00 -- pred 27 
+naplnit 5
+90  stary 4 -  !12 !06 _02 !01 !08 -- pred 89 
+prelit 5>3
+93  stary 3 -  !12 !06 _06 !01 _04 -- pred 90 
+vylit 3
+95  stary 3 -  !12 !06 _00 !01 _04 -- pred 93
+prelit 5>3
+96  stary 4 -  !12 !06 !04 !01 _00 -- pred 95 
+naplnit 5
+
+
+
+
+
+
