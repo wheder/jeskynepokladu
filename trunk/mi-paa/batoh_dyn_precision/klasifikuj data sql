@@ -1,0 +1,21 @@
+update test6 set sada =  4 where id >= 9000 and id <= 9049;
+update test6 set sada = 10 where id >= 9050 and id <= 9099;
+update test6 set sada = 15 where id >= 9100 and id <= 9149;
+update test6 set sada = 20 where id >= 9150 and id <= 9199;
+update test6 set sada = 22 where id >= 9200 and id <= 9249;
+update test6 set sada = 25 where id >= 9250 and id <= 9299;
+update test6 set sada = 27 where id >= 9300 and id <= 9349;
+update test6 set sada = 30 where id >= 9350 and id <= 9399;
+update test6 set sada = 32 where id >= 9400 and id <= 9449;
+update test6 set sada = 35 where id >= 9450 and id <= 9499;
+update test6 set sada = 37 where id >= 9500 and id <= 9549;
+update test6 set sada = 40 where id >= 9550 and id <= 9599;
+
+
+
+
+
+
+
+
+
