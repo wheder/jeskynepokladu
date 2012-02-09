@@ -201,10 +201,10 @@ int main(int argc, char *argv[])
 	
 	
 	for ( int q = 0; q< pocet; q++) {
-		printf("%d ", (int)max_arr[q]);
+		//printf("%d ", (int)max_arr[q]);
 	}
 	printf("%.18f", t2-t1);
-	
+	printf(" %.0f %.0f %.0f %.2f", T_start, T_end, eqil, cool_factor);
 	
 	delete [] C;
 	delete [] M;
