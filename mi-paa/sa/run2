@@ -1,0 +1,37 @@
+#!/bin/bash
+
+g++ -Wall -pedantic sa.cpp -O3 -o sa;
+# 
+# for f in `ls in3`; do 
+# 	for tstart in `seq 25 20 200`; do
+# 		for tend in `seq 10 10 50`; do
+# 			if  [ $tend -lt $tstart ] ; then
+# 				for eqi in `seq 50 10 100`; do
+# 					for cool in 0.85 0.9 0.95; do
+# 						for q in `seq 1 5`; do
+# 							./sa in3/${f}  $tstart $tend $eqi $cool
+# 						done;
+# 					done;
+# 				done;
+# 			fi;
+# 		done;
+# 	done;
+# done;
+
+
+
+
+
+
+
+for f in `ls in3`; do 
+	./sa in3/${f}  $1 $2 $3 $4
+done;
+
+
+
+
+
+
+
+
