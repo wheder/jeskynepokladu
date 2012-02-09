@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for f in `ls sol`; do 
+			echo $f `cut -d ' ' -f 3 sol/$f | awk 'BEGIN{sum=0;}{sum+=$0;}END{printf "%.18f\n",sum/NR}'`
+done;
+
+
+
+
+
+
+

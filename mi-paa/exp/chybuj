@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for f in `ls sol/*heur* |cut -d. -f1`; do 
+	php -f chybky.php  $f.batoh_dyn.dat $f.paa_batoh_heur.dat |cut -d'/' -f 2
+done;
+
+
+
+
+
+
+
