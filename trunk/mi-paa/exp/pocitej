@@ -1,0 +1,24 @@
+#!/bin/bash
+
+g++ -O3 -Wall -pedantic paa_batoh_heur.cpp -o paa_batoh_heur
+g++ -O3 -Wall -pedantic batoh_repeat_bb.cpp -o batoh_repeat_bb
+g++ -O3 -Wall -pedantic batoh_dyn.cpp -o batoh_dyn
+
+
+
+for cmd in 'batoh_dyn' 'batoh_repeat_bb' 'paa_batoh_heur'; do 
+	for i in `seq 1 10`; do
+		for sada in kap cena vaha granmin granlus; do
+			echo start $cmd $sada ${i}
+			#./$cmd dat/$sada${i}.dat 25
+			./$cmd dat/$sada${i}.dat 25 > sol/$sada${i}.$cmd.dat
+		done;
+	done;
+done;
+
+
+
+
+
+
+

@@ -1,0 +1,45 @@
+gran -1
+./gen -I 5000 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.2 -d -1 > granmin1.dat
+./gen -I 5100 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.4 -d -1 > granmin2.dat
+./gen -I 5200 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.6 -d -1 > granmin3.dat
+./gen -I 5300 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.8 -d -1 > granmin4.dat
+./gen -I 5400 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1   -d -1 > granmin5.dat
+./gen -I 5500 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.2 -d -1 > granmin6.dat
+./gen -I 5600 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.4 -d -1 > granmin7.dat
+./gen -I 5700 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.6 -d -1 > granmin8.dat
+./gen -I 5800 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.8 -d -1 > granmin9.dat
+./gen -I 5900 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 2   -d -1 > granmin10.dat
+
+gran 1
+./gen -I 6000 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.2 -d 1 > granlus1.dat
+./gen -I 6100 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.4 -d 1 > granlus2.dat
+./gen -I 6200 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.6 -d 1 > granlus3.dat
+./gen -I 6300 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 0.8 -d 1 > granlus4.dat
+./gen -I 6400 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1   -d 1 > granlus5.dat
+./gen -I 6500 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.2 -d 1 > granlus6.dat
+./gen -I 6600 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.4 -d 1 > granlus7.dat
+./gen -I 6700 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.6 -d 1 > granlus8.dat
+./gen -I 6800 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1.8 -d 1 > granlus9.dat
+./gen -I 6900 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 2   -d 1 > granlus10.dat
+
+
+kap
+./gen -I 7000 -n 20 -N 25 -m 0.1 -W 100 -C 100 -k 1 -d 0 > kap1.dat
+./gen -I 7100 -n 20 -N 25 -m 0.3 -W 100 -C 100 -k 1 -d 0 > kap2.dat
+./gen -I 7200 -n 20 -N 25 -m 0.5 -W 100 -C 100 -k 1 -d 0 > kap3.dat
+./gen -I 7300 -n 20 -N 25 -m 0.7 -W 100 -C 100 -k 1 -d 0 > kap4.dat
+./gen -I 7400 -n 20 -N 25 -m 0.9 -W 100 -C 100 -k 1 -d 0 > kap5.dat
+
+cena
+./gen -I 8000 -n 20 -N 25 -m 0.5 -W 100 -C 10     -k 1 -d 0 >  cena1.dat
+./gen -I 8100 -n 20 -N 25 -m 0.5 -W 100 -C 100    -k 1 -d 0 >  cena2.dat
+./gen -I 8200 -n 20 -N 25 -m 0.5 -W 100 -C 1000   -k 1 -d 0 >  cena3.dat
+./gen -I 8300 -n 20 -N 25 -m 0.5 -W 100 -C 10000  -k 1 -d 0 >  cena4.dat
+./gen -I 8400 -n 20 -N 25 -m 0.5 -W 100 -C 100000 -k 1 -d 0 >  cena5.dat
+
+hmotn
+./gen -I 9000 -n 20 -N 25 -m 0.5 -W 100     -C 100 -k 1 -d 0 >  vaha1.dat
+./gen -I 9100 -n 20 -N 25 -m 0.5 -W 1000    -C 100 -k 1 -d 0 >  vaha2.dat
+./gen -I 9200 -n 20 -N 25 -m 0.5 -W 10000   -C 100 -k 1 -d 0 >  vaha3.dat
+./gen -I 9300 -n 20 -N 25 -m 0.5 -W 100000  -C 100 -k 1 -d 0 >  vaha4.dat
+./gen -I 9400 -n 20 -N 25 -m 0.5 -W 1000000 -C 100 -k 1 -d 0 >  vaha5.dat
