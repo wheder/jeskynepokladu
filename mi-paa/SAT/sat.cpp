@@ -168,7 +168,7 @@ void novyStav() {
 	
 	
 	// nikomu to moc nepomuze, ale muzu si ho nechat ....
-	int delta = -pomer;
+	int delta = -round(pomer);
 	if ( drand() < exp(delta/cur_tem) ) { // stejne vratim horsi
 		return;
 	}
@@ -307,9 +307,12 @@ int main(int argc, char *argv[])
 	
 	
 	
-	printf("ohodnoceni hodnota %d splneno %d \n", hodnota_hodnoty(), splneno_hodnota());
-	printf("splneno    hodnota %d splneno %d \n", hodnota_splneno(), splneno_splneno());
-	printf("prvku:  %d soucet hodnot: %d klauzuli: %d \n", PRVKY, soucet_hodnot, KAUNT);
+	
+	printf("%d %d %d %d ", hodnota_splneno(), splneno_splneno(), KAUNT, PRVKY);
+	
+	/// printf("ohodnoceni hodnota %d splneno %d \n", hodnota_hodnoty(), splneno_hodnota());
+	/// printf("splneno    hodnota %d splneno %d \n", hodnota_splneno(), splneno_splneno());
+	/// printf("prvku:  %d soucet hodnot: %d klauzuli: %d \n", PRVKY, soucet_hodnot, KAUNT);
 	
 		
 	
