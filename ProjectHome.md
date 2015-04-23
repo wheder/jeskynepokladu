@@ -1,0 +1,1 @@
+openmpi implementation of bag problem
